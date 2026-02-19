@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project SNAPDRAGON: Performance Visualizer (v9.0)</title>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --text: #e0e0e0;
+            --accent: #00f3ff;
+            --truth: #ff00f7;
+            --noise: #444444;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .ui-overlay {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            height: 90%;
+            justify-content: space-between;
+        }
+
+        /* Unified HUD Column */
+        .hud-column {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+            width: 350px;
+            pointer-events: none;
+        }
+
+        .hud-item {
+            background: var(--glass);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-left: 3px solid var(--accent);
+            pointer-events: auto;
+        }
+
+        .header {
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .stats-box {
+            padding: 20px;
+            min-width: unset;
+        }
+
+        .header-meta {
+            font-size: 0.6rem;
+            opacity: 0.4;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 11;
+            display: flex;
+            gap: 20px;
+        }
+
+        #btn-snap:hover {
+            background: rgba(255, 0, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.2);
+        }
+
+        #btn-auto {
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        #btn-auto.active {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        button {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            pointer-events: auto;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .apex-label {
+            position: absolute;
+            right: 50px;
+            /* Move back to right, but clear of informational HUD */
+            top: 20%;
+            color: var(--accent);
+            font-family: 'Courier New', Courier, monospace;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-variation-settings: 'wght' 700;
+            cursor: help;
+            pointer-events: auto;
+            white-space: nowrap;
+        }
+
+        .logic-card {
+            border-left: 3px solid var(--accent);
+            border-top: 1px solid rgba(0, 243, 255, 0.1);
+        }
+
+        /* Case Study Column (Bottom Right) */
+        .case-column {
+            position: absolute;
+            right: 20px;
+            bottom: 120px;
+            /* Shifted to bottom to avoid top-right overlap */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+            width: 320px;
+            pointer-events: none;
+        }
+
+        .case-card {
+            background: var(--glass);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            padding: 24px;
+            border-right: 3px solid var(--highlight);
+            pointer-events: auto;
+            transition: all 0.5s ease;
+        }
+
+        .case-card h3 {
+            margin: 0 0 10px;
+            font-size: 0.8rem;
+            color: var(--highlight);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .case-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .formula {
+            color: var(--highlight);
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+        }
+
+        /* FAQ Modal */
+        #faq-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 500px;
+            max-height: 80vh;
+            background: rgba(10, 10, 15, 0.98);
+            border: 2px solid var(--accent);
+            z-index: 200;
+            padding: 40px;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
+        }
+
+        #faq-modal.visible {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .faq-question {
+            color: var(--accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 20px 0 10px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .faq-answer {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        #btn-faq-toggle {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+
+        /* Guidance Console */
+        .console {
+            position: absolute;
+            left: 50%;
+            top: 15%;
+            transform: translateX(-50%);
+            background: rgba(0, 243, 255, 0.05);
+            border-top: 1px solid var(--accent);
+            border-bottom: 1px solid var(--accent);
+            padding: 10px 40px;
+            text-align: center;
+            z-index: 20;
+            min-width: 500px;
+            pointer-events: none;
+        }
+
+        .console h2 {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        .logic-card h3 {
+            margin: 0 0 10px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logic-card pre {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            color: #888;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .logic-card p {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            opacity: 0.8;
+            margin: 10px 0 0;
+        }
+
+        .logic-card .formula {
+            color: var(--truth);
+            font-weight: bold;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            background: rgba(10, 10, 15, 0.98);
+            border: 2px solid var(--accent);
+            padding: 20px;
+            font-size: 0.95rem;
+            max-width: 320px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            display: none;
+            z-index: 100;
+            pointer-events: none;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            line-height: 1.6;
+        }
+
+        .tooltip h4 {
+            margin: 0 0 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .tooltip h4 {
+            margin: 0 0 8px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        .info-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            cursor: help;
+            pointer-events: auto;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: var(--accent);
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        .info-marker:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        /* Classes to fix inline style lints */
+        .subheader-authors {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            margin-top: 10px;
+        }
+
+        .marker-noise {
+            left: 380px;
+            /* Shifted right of HUD column */
+            bottom: 150px;
+        }
+
+        .marker-truth-pos {
+            left: 380px;
+            /* Shifted right of HUD column */
+            top: 150px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-container">
+        <canvas id="visualizer"></canvas>
+
+        <div class="hud-column">
+            <div class="header hud-item">
+                <h1>SNAPDRAGON</h1>
+                <p>Cryptographic Key Protocol // Quantum Data Alignment</p>
+                <div class="header-meta">
+                    SYMMETRY // PERSISTENCE // SOVEREIGNTY<br>
+                    DEVELOPED IN ANTIGRAVITY IDE (GOOGLE) // DESIGNED BY GWENDALYNN LIM WAN TING
+                </div>
+            </div>
+
+            <div class="stats-box hud-item">
+                <div class="stat-line"><span>PROTOCOL:</span> <span id="protocol">SNAPDRAGON</span></div>
+                <div class="stat-line"><span>MODE:</span> <span id="logic-mode-label-stats">SIMPLEX</span></div>
+                <div class="stat-line"><span>HEX KEY:</span> <span>0x5f41da5a</span></div>
+                <div class="stat-line"><span>LATENCY:</span> <span>O(1)</span></div>
+                <div class="stat-line"><span>FIDELITY:</span> <span id="fidelity">STABLE</span></div>
+            </div>
+
+            <div class="logic-card hud-item">
+                <h3>The Topological Bridge</h3>
+                <pre>
+[ENG-1] MAGIC HEX KERNEL
+[ENG-2] DSMF FRACTAL LOCK
+[ENG-3] REI STEALTH LAYER
+                    </pre>
+                <p>
+                    Combining bit-level coordinate refraction with <span class="formula">DSMF</span> recursive context
+                    for $O(1)$ signal intelligence.
+                </p>
+            </div>
+
+            <div class="hud-item legend">
+                <h3 style="margin:0 0 10px; font-size: 0.8rem; color: var(--accent);">SYSTEM LEGEND</h3>
+                <div style="font-size: 0.75rem; line-height: 1.4; opacity: 0.8;">
+                    <div style="margin-bottom: 5px;"><span style="color: grey;">●</span> <b>DOTS:</b> Raw Quantum Data
+                        Packets (Unsigned Entropy)</div>
+                    <div style="margin-bottom: 5px;"><span style="color: var(--accent);">—</span> <b>THRESHOLD:</b> The
+                        "Geometric Apex" for bit-alignment.</div>
+                    <div><span style="color: var(--highlight);">●</span> <b>SNAP:</b> Successful <span
+                            class="formula">O(1)</span> Key Extraction.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="console">
+            <h2 id="console-msg">System Idle: Establish Quantum Baseline</h2>
+        </div>
+
+        <div class="case-column">
+            <div class="case-card" id="case-study">
+                <h3 id="case-title">USE CASE: QUANTUM TELECOM</h3>
+                <p id="case-body">SNAPDRAGON secures global key distribution by aligning entangled data packets in
+                    <span class="formula">O(1)</span> time, eliminating the 1ms "FPU bottleneck" that compromises
+                    classic encryption sync.
+                </p>
+            </div>
+        </div>
+
+        <!-- Tooltips -->
+        <div id="tt-apex" class="tooltip">
+            <h4>Apex Snap Logic</h4>
+            The constant (0x5f41... or 0x5f37...) acts as a geometric funnel. When signals align with the active
+            manifold, the O(1) fold forces them to "Snap" to this high-altitude apex.
+        </div>
+
+        <div id="tt-truth" class="tooltip">
+            <h4>H4 Truth Signals</h4>
+            These particles represent data points perfectly aligned with the 4-simplex manifold altitude (0.6324).
+            They are the high-value signals extracted from the noise.
+        </div>
+
+        <div id="tt-noise" class="tooltip">
+            <h4>Refractive Noise</h4>
+            Standard residual jitter. Because these bits do not align with the 4D manifold logic, they remain
+            "grounded" at the base level of the compute layer.
+        </div>
+
+        <div id="tt-simplex" class="tooltip">
+            <h4>Mode 1: Simplex</h4>
+            Optimized for refractive background noise suppression and high-threshold signal capture. Uses the 5-cell
+            (Pentachoron) manifold.
+        </div>
+
+        <div id="tt-octaplex" class="tooltip">
+            <h4>Mode 2: Octaplex</h4>
+            Optimized for high-density packet alignment and multi-channel synchronization. Uses the 24-cell
+            (Icositetrachoron) manifold.
+        </div>
+
+        <div class="apex-label" id="label-apex" onmouseover="showTT('tt-apex', event)" onmouseout="hideTT('tt-apex')">
+            <div style="width: 100px; height: 1px; background: var(--accent);"></div>
+            APEX SNAP THRESHOLD [1.20]
+        </div>
+
+        <!-- Interactive Info Markers -->
+        <div class="info-marker marker-noise" onmouseover="showTT('tt-noise', event)" onmouseout="hideTT('tt-noise')">?
+        </div>
+        <div class="info-marker marker-truth-pos" id="marker-truth" style="display: none;"
+            onmouseover="showTT('tt-truth', event)" onmouseout="hideTT('tt-truth')">?</div>
+
+        <!-- FAQ Modal -->
+        <div id="faq-modal">
+            <h2 style="color: var(--accent); letter-spacing: 5px; margin: 0 0 20px;">SNAPDRAGON FAQ</h2>
+
+            <div class="faq-question">What are the Three Pillars?</div>
+            <p class="faq-answer">1. <b>Magic Hex</b>: The bit-level coordinate filter for O(1) snapping.<br>
+                2. <b>DSMF</b>: Recursive fractal context (micro-sigmoids) layered within the signal transition.<br>
+                3. <b>REI</b>: Stealth indexing that hides data in residual floating-point error.</p>
+
+            <div class="faq-question">What is the DSMF?</div>
+            <p class="faq-answer">The <b>Double Sigmoid Mencius Function</b> uses nested micro-sigmoids to capture
+                multi-scale data relationships. It ensures the SNAPDRAGON kernel understands the context of <i>why</i> a
+                snap occurred.</p>
+
+            <div class="faq-question">What is REI?</div>
+            <p class="faq-answer"><b>Residual Error Indexing</b> uses the mathematical 'jitter' in floating-point
+                calculations as a high-security carrier wave, creating a post-quantum bridge invisible to classic
+                monitors.</p>
+
+            <div class="faq-question">What is the O(1) Snap?</div>
+            <p class="faq-answer">A constant-time logic operation that bypasses traditional FPU rounding delays by using
+                bit-level coordinate refraction. It ensures deterministic timing regardless of data complexity.</p>
+
+            <div class="faq-question">Why bypass the FPU?</div>
+            <p class="faq-answer">Traditional Floating Point Units introduce variable latency cycles. SNAPDRAGON aligns
+                data at the silicon's integer storage level for absolute zero-jitter performance.</p>
+
+            <div class="faq-question">What is the 0x5f hex constant?</div>
+            <p class="faq-answer">A geometric "magic number" that serves as the focal point for the dual-manifold
+                funnel, forcing disparate data points to converge at the apex instantly.</p>
+
+            <div class="faq-question">How does Auto-Pilot work?</div>
+            <p class="faq-answer">It simulates a "Live Audit" cycle, establishing quantum baselines and executing snaps
+                automatically to demonstrate protocol stability in high-entropy environments.</p>
+
+            <button onclick="toggleFAQ()" style="margin-top: 30px; width: 100%;">CLOSE AUDIT DATA</button>
+        </div>
+
+        <button id="btn-faq-toggle" onclick="toggleFAQ()">?</button>
+
+        <!-- Note: Footer consolidated into Header Meta -->
+    </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-simplex">Mode 1: Simplex</button>
+        <button id="btn-octaplex">Mode 2: Octaplex</button>
+        <button id="btn-noise">Inject Noise</button>
+        <button id="btn-snap">Execute Snap</button>
+        <button id="btn-auto">Auto-Pilot</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        const btnNoise = document.getElementById('btn-noise');
+        const btnSnap = document.getElementById('btn-snap');
+        const btnSimplex = document.getElementById('btn-simplex');
+        const btnOctaplex = document.getElementById('btn-octaplex');
+        const btnAuto = document.getElementById('btn-auto');
+        const fidelityEl = document.getElementById('fidelity');
+        const protocolEl = document.getElementById('protocol');
+        const markerTruth = document.getElementById('marker-truth');
+        const consoleMsg = document.getElementById('console-msg');
+        const caseTitle = document.getElementById('case-title');
+        const caseBody = document.getElementById('case-body');
+
+        let width, height;
+        let particles = [];
+        let state = 'IDLE'; // IDLE, NOISE, SNAP
+        let autoMode = false;
+        let autoTimer = null;
+        let caseIndex = 0;
+        const particleCount = 2000;
+        let manifoldMode = 'SIMPLEX'; // SIMPLEX or OCTAPLEX
+        let h4_altitude = 0.6324; // Simplex altitude
+        const noise_level = 0.85;
+
+        function showTT(id, event) {
+            const tt = document.getElementById(id);
+            tt.style.display = 'block';
+
+            // Repositioned to the right of the cursor for better visibility
+            let x = event.clientX + 30;
+            let y = event.clientY - 20;
+
+            // Boundary checks
+            if (x + 320 > window.innerWidth) {
+                x = event.clientX - 340;
+            }
+            if (y + 150 > window.innerHeight) {
+                y = event.clientY - 130;
+            }
+
+            tt.style.left = x + 'px';
+            tt.style.top = y + 'px';
+        }
+
+        function hideTT(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // The RECURSE Kernel Simulation
+        function simulateSnap(val) {
+            const tolerance = manifoldMode === 'SIMPLEX' ? 0.05 : 0.08;
+            if (Math.abs(val - h4_altitude) < tolerance) {
+                // Simplex (Mode 1) snaps higher than Octaplex (Mode 2)
+                const apex = manifoldMode === 'SIMPLEX' ? 1.45 : 1.35;
+                return apex + (Math.random() - 0.5) * 0.1;
+            } else {
+                return 1.05 + Math.random() * 0.1;
+            }
+        }
+
+        class Particle {
+            constructor(type) {
+                this.type = type; // 'TRUTH' or 'NOISE'
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + 50;
+                this.baseY = height * 0.8;
+                this.targetY = this.baseY;
+                this.val = this.type === 'TRUTH' ? h4_altitude : noise_level + (Math.random() - 0.5) * 0.2;
+                this.radius = this.type === 'TRUTH' ? 2 : 1;
+                this.color = this.type === 'TRUTH' ? '#ff00f7' : '#444444';
+                this.velocity = { x: (Math.random() - 0.5) * 0.5, y: -Math.random() * 2 - 1 };
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.pulsing = Math.random() * 0.1;
+            }
+
+            update() {
+                if (state === 'NOISE' || state === 'SNAP') {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+
+                    if (this.y < this.targetY) {
+                        this.y += (this.targetY - this.y) * 0.05;
+                    }
+
+                    if (state === 'SNAP') {
+                        const snapVal = simulateSnap(this.val);
+                        const snapY = height * (1 - (snapVal - 0.5));
+                        this.targetY = snapY;
+
+                        if (snapVal >= 1.25) {
+                            this.color = '#00f3ff';
+                            this.opacity = 1;
+                            this.radius = 2.5;
+                        }
+                    } else {
+                        this.targetY = height * 0.8 + (Math.random() - 0.5) * 20;
+                    }
+                }
+
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                const type = i < 50 ? 'TRUTH' : 'NOISE';
+                particles.push(new Particle(type));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            if (state === 'SNAP') {
+                const snapVal = manifoldMode === 'SIMPLEX' ? 1.45 : 1.35;
+                const lineY = height * (1 - (snapVal - 0.5));
+
+                ctx.beginPath();
+                ctx.moveTo(0, lineY);
+                ctx.lineTo(width, lineY);
+                ctx.strokeStyle = manifoldMode === 'SIMPLEX' ? 'rgba(0, 243, 255, 0.4)' : 'rgba(255, 0, 247, 0.4)';
+                ctx.setLineDash([10, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Update UI Label pos
+                const label = document.getElementById('label-apex');
+                label.style.top = (lineY - 20) + 'px';
+            }
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        btnSimplex.addEventListener('click', () => {
+            manifoldMode = 'SIMPLEX';
+            h4_altitude = 0.6324;
+            btnSimplex.style.background = 'rgba(0, 243, 255, 0.3)';
+            btnOctaplex.style.background = 'rgba(0, 243, 255, 0.1)';
+            protocolEl.innerText = 'SNAPDRAGON';
+            document.getElementById('logic-mode-label-stats').innerText = 'SIMPLEX';
+            document.getElementById('logic-mode-label').innerText = '4-SIMPLEX';
+            document.querySelector('.logic-card pre').innerText = `i = * ( uint32_t * ) &x;\ni = 0x5f41da5a - ( i >> 1 );\nx = * ( float * ) &i;\nx = x * ( 1.5f - ( xhalf * x * x ) );`;
+            particles.forEach(p => p.reset());
+        });
+
+        btnOctaplex.addEventListener('click', () => {
+            manifoldMode = 'OCTAPLEX';
+            h4_altitude = 0.7071; // sqrt(2)/2 approx
+            btnOctaplex.style.background = 'rgba(0, 243, 255, 0.3)';
+            btnSimplex.style.background = 'rgba(0, 243, 255, 0.1)';
+            protocolEl.innerText = 'SNAPDRAGON';
+            document.getElementById('logic-mode-label-stats').innerText = 'OCTAPLEX';
+            document.getElementById('logic-mode-label').innerText = 'OCTAPLEX';
+            document.querySelector('.logic-card pre').innerText = `i = * ( uint32_t * ) &x;\ni = 0x5f375a86 - ( i >> 1 );\nx = * ( float * ) &i;\nx = x * ( 1.5f - ( xhalf * x * x ) );`;
+            particles.forEach(p => p.reset());
+        });
+
+        btnNoise.addEventListener('click', () => {
+            state = 'NOISE';
+            protocolEl.innerText = 'SAMPLING';
+            fidelityEl.innerText = '0% (NOISE)';
+            consoleMsg.innerText = 'Quantum Source Active. MODE: SIMPLEX selected. Click [EXECUTE SNAP].';
+            markerTruth.style.display = 'none';
+            particles.forEach(p => p.reset());
+        });
+
+        btnSnap.addEventListener('click', () => {
+            if (state === 'IDLE') return;
+            state = 'SNAP';
+            protocolEl.innerText = 'SNAPDRAGON ACTIVE';
+            fidelityEl.innerText = '100% (KEY ALIGNED)';
+            consoleMsg.innerText = 'Protocol Success: Cryptographic Key Aligned.';
+            markerTruth.style.display = 'flex';
+        });
+
+        const caseStudies = [
+            {
+                title: "USE CASE: QUANTUM TELECOM",
+                body: "SNAPDRAGON secures global key distribution by aligning entangled data packets in <span class='formula'>O(1)</span> time, eliminating the 1ms 'FPU bottleneck' that compromises classic encryption sync."
+            },
+            {
+                title: "USE CASE: H.F. FINANCE",
+                body: "Executing bit-level coordinate refraction for high-frequency sentiment analysis. SNAPDRAGON detects market shifts <span class='formula'>400μs</span> ahead of standard CPU clusters."
+            },
+            {
+                title: "USE CASE: EDGE SOVEREIGNTY",
+                body: "Low-power autonomous robotics. By bypassing the FPU, SNAPDRAGON enables real-time terrain mapping on <span class='formula'>0.5W</span> of power, suitable for subsea deployment."
+            }
+        ];
+
+        function updateCaseStudy() {
+            caseIndex = (caseIndex + 1) % caseStudies.length;
+            const study = caseStudies[caseIndex];
+
+            // Fade effect
+            const card = document.getElementById('case-study');
+            card.style.opacity = 0;
+
+            setTimeout(() => {
+                caseTitle.innerText = study.title;
+                caseBody.innerHTML = study.body;
+                card.style.opacity = 1;
+            }, 500);
+        }
+
+        // Auto-Pilot Logic
+        function runAutoSequence() {
+            if (!autoMode) return;
+
+            // Step 1: Inject Noise
+            btnNoise.click();
+
+            autoTimer = setTimeout(() => {
+                if (!autoMode) return;
+                // Step 2: Execute Snap
+                btnSnap.click();
+
+                autoTimer = setTimeout(() => {
+                    if (!autoMode) return;
+                    // Step 3: Toggle Manifold, Update Case Study, and Loop
+                    updateCaseStudy();
+                    if (manifoldMode === 'SIMPLEX') {
+                        btnOctaplex.click();
+                    } else {
+                        btnSimplex.click();
+                    }
+                    runAutoSequence();
+                }, 5000); // Wait 5s at Snap before restart
+            }, 3000); // Wait 3s at Noise before Snap
+        }
+
+        btnAuto.addEventListener('click', () => {
+            autoMode = !autoMode;
+            btnAuto.classList.toggle('active');
+            if (autoMode) {
+                btnAuto.innerText = "AUTO ACTIVE";
+                runAutoSequence();
+            } else {
+                btnAuto.innerText = "AUTO-PILOT";
+                clearTimeout(autoTimer);
+            }
+        });
+
+        function toggleFAQ() {
+            const modal = document.getElementById('faq-modal');
+            modal.classList.toggle('visible');
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+
+        setTimeout(() => {
+            console.log("Project SNAPDRAGON Performance Visualizer v9.9.1 Ready. [THREE PILLARS ACTIVE]");
+        }, 1000);
+    </script>
+</body>
+
+</html>
