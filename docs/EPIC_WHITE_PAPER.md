@@ -1,6 +1,6 @@
 # **EPIC: Entropic Packing Configuration**
 
-### **Geometric Analysis of Systemic Coherence and Failure**
+## **Geometric Analysis of Systemic Coherence and Failure**
 
 ## **1. Abstract**
 
@@ -62,4 +62,4 @@ The integration of EPIC completes the sovereign decision stack:
 
 ---
 
-*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.0 [Institutional Release]*
+*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.1 [Institutional Release]*

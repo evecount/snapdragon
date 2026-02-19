@@ -7,7 +7,7 @@ Project SNAPDRAGON is a technical specification for high-speed data interpretati
 
 ## **Quick Start**
 
-Verification of the core hypothesis is available in the [main_hypothesis_test.ipynb](file:///c:/Users/User/Documents/Snapdragon/main_hypothesis_test.ipynb).
+Verification of the core hypothesis is available in the [main_hypothesis_test.ipynb](main_hypothesis_test.ipynb).
 
 ## **Documentation**
 
@@ -15,13 +15,13 @@ The documentation suite provides a strictly technical and strategic analysis of 
 
 ### **Core Documentation**
 
-- [EXECUTIVE_OVERVIEW.md](file:///c:/Users/User/Documents/Snapdragon/docs/EXECUTIVE_OVERVIEW.md): High-level strategic pitch.
-- [TECHNICAL_README.md](file:///c:/Users/User/Documents/Snapdragon/TECHNICAL_README.md): Deep-dive documentation and logic derivations.
-- [ARCHITECTURE_DSMF.md](file:///c:/Users/User/Documents/Snapdragon/docs/ARCHITECTURE_DSMF.md): The Sovereign Decision Stack (Fractal Intelligence).
-- [LINEAGE_MAP.md](file:///c:/Users/User/Documents/Snapdragon/docs/LINEAGE_MAP.md): The historical and technical "Receipt" of the project.
-- [DSMF_WHITEPAPER.md](file:///c:/Users/User/Documents/Snapdragon/docs/DSMF_WHITEPAPER.md): Formal mathematical whitepaper for the DSMF.
-- [EPIC_WHITE_PAPER.md](file:///c:/Users/User/Documents/Snapdragon/docs/EPIC_WHITE_PAPER.md): Geometric analysis of systemic coherence and the "Moot State".
-- [VISUAL_REALIZATION.md](file:///c:/Users/User/Documents/Snapdragon/docs/VISUAL_REALIZATION.md): Interactive performance simulator and conceptual proof.
+- [EXECUTIVE_OVERVIEW.md](docs/EXECUTIVE_OVERVIEW.md): High-level strategic pitch.
+- [TECHNICAL_README.md](TECHNICAL_README.md): Deep-dive documentation and logic derivations.
+- [ARCHITECTURE_DSMF.md](docs/ARCHITECTURE_DSMF.md): The Sovereign Decision Stack (Fractal Intelligence).
+- [LINEAGE_MAP.md](docs/LINEAGE_MAP.md): The historical and technical "Receipt" of the project.
+- [DSMF_WHITEPAPER.md](docs/DSMF_WHITEPAPER.md): Formal mathematical whitepaper for the DSMF.
+- [EPIC_WHITE_PAPER.md](docs/EPIC_WHITE_PAPER.md): Geometric analysis of systemic coherence and the "Moot State".
+- [VISUAL_REALIZATION.md](docs/VISUAL_REALIZATION.md): Interactive performance simulator and conceptual proof.
 
 ### **Empirical Audit: O(1) Determinism (v13.1)**
 
@@ -34,7 +34,7 @@ The following data verifies the performance of the SNAPDRAGON kernel compared to
 The audit compares the Project SNAPDRAGON Kernel against industry-standard FPU execution paths. By utilizing bit-level coordinate refraction (`0x5f41da5a`) instead of transcendental FPU functions, SNAPDRAGON achieves constant-time ($O(1)$) signal separation.
 
 - **Determinism**: As complexity scales to 1M+ samples, SNAPDRAGON maintains a flat latency profile, bypassing the FPU bottleneck.
-- **Sovereign Speed**: In high-frequency C++ deployments (see [Snapdragon_Kernel.cpp](file:///c:/Users/User/Documents/Snapdragon/Snapdragon_Kernel.cpp)), the kernel provides a fixed cycle count (1-3 cycles), providing the deterministic "latency floor" required for sovereign missions.
+- **Sovereign Speed**: In high-frequency C++ deployments (see [Snapdragon_Kernel.cpp](Snapdragon_Kernel.cpp)), the kernel provides a fixed cycle count (1-3 cycles), providing the deterministic "latency floor" required for sovereign missions.
 
 > [!IMPORTANT]
 > **Figure 1: Deterministic $O(1)$ Latency Audit**  
@@ -44,8 +44,8 @@ The audit compares the Project SNAPDRAGON Kernel against industry-standard FPU e
 
 ## **Core Components**
 
-- **[Snapdragon_Kernel.cpp](file:///c:/Users/User/Documents/Snapdragon/Snapdragon_Kernel.cpp)**: C++ reference implementation.
-- **[main_hypothesis_test.ipynb](file:///c:/Users/User/Documents/Snapdragon/main_hypothesis_test.ipynb)**: Executable proof-of-concept.
+- **[Snapdragon_Kernel.cpp](Snapdragon_Kernel.cpp)**: C++ reference implementation.
+- **[main_hypothesis_test.ipynb](main_hypothesis_test.ipynb)**: Executable proof-of-concept.
 
 ---
 

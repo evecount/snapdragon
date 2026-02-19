@@ -1,5 +1,7 @@
 # **Project Snapdragon: Future Vision & Architectural Roadmap**
 
+![Snapdragon Visualizer](docs/snapdragon-visualizer.png)
+
 ## **1. The Decentralized Decision Layer**
 
 The future of computational integrity lies at the "Edge." Snapdragon envisions a world where the primary logic gate is not a centralized server, but the individual bit-storage of local hardware.
@@ -17,6 +19,8 @@ Standard data processing identifies *what* is happening. Snapdragon identifies t
 ## **3. Predictive Geometric Efficiency**
 
 The framework identifies **Systemic Decoherence**—the exact moment a process enters a state of futility or "wasted effort."
+
+![Performance Benchmark](docs/BENCHMARK_GRAPH.png)
 
 * **Resource Optimization:** By monitoring the geometric entropy of a process, the system triggers a "Snap" the moment a path becomes moot.
 * **The Impact:** This eliminates the "Administrative Gray Zone," allowing organizations to reallocate resources instantly based on the mathematical probability of success rather than post-mortem reporting.
@@ -37,11 +41,12 @@ As we move toward a hybrid computing era, Snapdragon acts as the translation lay
 
 ### **Resource Links**
 
-* [TECHNICAL_README.md](file:///c:/Users/User/Documents/Snapdragon/TECHNICAL_README.md): Deep-dive documentation and logic derivations.
-* [Lineage Map](file:///c:/Users/User/Documents/Snapdragon/docs/LINEAGE_MAP.md): Historical evolution and technical lineage.
+* [TECHNICAL_README.md](TECHNICAL_README.md): Deep-dive documentation and logic derivations.
+* [Lineage Map](docs/LINEAGE_MAP.md): Historical evolution and technical lineage.
 
-* [Visual Proof](file:///c:/Users/User/Documents/Snapdragon/RECURSE_Visualizer.html): Interactive performance simulator.
-* [Executive Overview](file:///c:/Users/User/Documents/Snapdragon/docs/EXECUTIVE_OVERVIEW.md): Business case and ROI analysis.
+* [Visual Proof](RECURSE_Visualizer.html): Interactive performance simulator.
+* [Executive Overview](docs/EXECUTIVE_OVERVIEW.md): Business case and ROI analysis.
+* [Hypothesis Test](main_hypothesis_test.ipynb): Executable logic verification.
 
 ---
 
@@ -53,4 +58,5 @@ As we move toward a hybrid computing era, Snapdragon acts as the translation lay
 > **Scope:** Core v13.0 institutional release documentation and kernel specification.
 
 ---
-*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.0 [Institutional Release]*
+---
+*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.1 [Institutional Release]*

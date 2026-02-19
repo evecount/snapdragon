@@ -28,7 +28,7 @@ This map traces the evolution of three distinct breakthroughs into a unified arc
 
 ---
 
-# **The Unified Stack: Snapdragon-DSMF-EPIC**
+## **The Unified Stack: Snapdragon-DSMF-EPIC**
 
 | Component | Responsibility | Mathematical Anchor |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ This map traces the evolution of three distinct breakthroughs into a unified arc
 | **DSMF** | **Context** | Recursive Fractal Sigmoids / Fractional Calculus |
 | **EPIC** | **Diagnostic** | Coordination Number Distribution / Futility Detection |
 
-### **Projected Usage for 2026 Singapore AI Missions**
+## **Projected Usage for 2026 Singapore AI Missions**
 
 1. **Finance**: Rapid Fraud Detection $\rightarrow$ Hidden Correlation Mapping $\rightarrow$ Systemic Coherence Verification.
 2. **Logistics**: Intelligent Traffic Optimization $\rightarrow$ Causal Context Retention $\rightarrow$ Predictive Resource Management.
@@ -44,4 +44,4 @@ This map traces the evolution of three distinct breakthroughs into a unified arc
 
 ---
 
-*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.0 [Institutional Release]*
+*Project SNAPDRAGON: Authorized for Future-State Deployment // v13.1 [Institutional Release]*
