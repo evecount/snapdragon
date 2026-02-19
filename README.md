@@ -20,8 +20,6 @@ Standard data processing identifies *what* is happening. Snapdragon identifies t
 
 The framework identifies **Systemic Decoherence**—the exact moment a process enters a state of futility or "wasted effort."
 
-![Performance Benchmark](docs/BENCHMARK_GRAPH.png)
-
 * **Resource Optimization:** By monitoring the geometric entropy of a process, the system triggers a "Snap" the moment a path becomes moot.
 * **The Impact:** This eliminates the "Administrative Gray Zone," allowing organizations to reallocate resources instantly based on the mathematical probability of success rather than post-mortem reporting.
 
@@ -60,3 +58,6 @@ As we move toward a hybrid computing era, Snapdragon acts as the translation lay
 ---
 ---
 *Project SNAPDRAGON: Authorized for Future-State Deployment // v13.1 [Institutional Release]*
+
+![Performance Benchmark](docs/BENCHMARK_GRAPH.png)
+
